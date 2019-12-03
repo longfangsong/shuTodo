@@ -10,8 +10,8 @@ jobs:
         with:
           go-version: 1.13
         id: go
+      - uses: actions/checkout@v1
       - name: Run test
-        uses: actions/checkout@v1
         run: JWT_SECRET=test go test ./handler
   build:
     runs-on: ubuntu-latest
