@@ -84,3 +84,21 @@ func TestGetTodoHandler(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestDeleteTodoHandler(t *testing.T) {
+	var dbmock sqlmock.Sqlmock
+	var err error
+	infrastructure.DB, dbmock, err = sqlmock.New()
+	tools.CheckErr(err, "cannot create mock DB")
+	dbmock.ExpectExec(`DELETE FROM Todo`).
+		WithArgs("17120238", 1).WillReturnResult(sqlmock.NewResult(0, 1))
+	r := httptest.NewRequest("DELETE", "http://localhost:8000/todo?id=1", nil)
+	// this token is my(studentId: 17120238) token encoded by JWT_SECRET "test"
+	// for test only, never used in production
+	r.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiIxNzEyMDIzOCJ9.1shlMZ014Rnzw7Z5iNxiL73dC2xQ0iiKIFTILsOME-I")
+	w := httptest.NewRecorder()
+	DeleteTodoHandler(w, r)
+	if w.Code != 200 {
+		t.Error("Cannot delete! Status =", w.Code)
+	}
+}

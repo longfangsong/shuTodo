@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"shuTodo/model"
 	"shuTodo/service/token"
+	"strconv"
 	"time"
 )
 
@@ -108,6 +109,30 @@ func GetTodoHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func DeleteTodoHandler(w http.ResponseWriter, r *http.Request) {
+	tokenInHeader := r.Header.Get("Authorization")
+	if len(tokenInHeader) <= 7 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	studentId := token.StudentIdForToken(tokenInHeader[7:])
+	if studentId == "" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		return
+	}
+	err = model.DeleteTodoByStudent(studentId, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func TodoHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -116,5 +141,7 @@ func TodoHandler(w http.ResponseWriter, r *http.Request) {
 		CreateTodoHandler(w, r)
 	case "PUT":
 		CreateTodoHandler(w, r)
+	case "DELETE":
+		DeleteTodoHandler(w, r)
 	}
 }

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"shuTodo/infrastructure"
 	"time"
 )
@@ -75,5 +76,23 @@ func AssignTodoToStudent(studentId string, todoId int64) error {
 	VALUES ($1, $2)
 	ON CONFLICT DO UPDATE set student_id=$1;
 	`, studentId, todoId)
+	return err
+}
+
+func DeleteTodoByStudent(studentId string, todoId int64) error {
+	result, err := infrastructure.DB.Exec(`
+	DELETE FROM Todo
+	WHERE id = $2
+  		AND id in (SELECT todo_id
+             FROM studenttodo
+             where student_id = $1);
+	`, studentId, todoId)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if rowsAffected == 0 {
+		return errors.New("no rows affected")
+	}
 	return err
 }
