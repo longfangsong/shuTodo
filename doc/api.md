@@ -9,7 +9,7 @@
   "id":             id,
   "content":        Todo项内容,
   "due":            到期时间（可空，JS标准格式）,
-  "estimate_cost":  预计花费时间（可空，如"2h"，返回时单位为us）
+  "estimate_cost":  预计花费时间（可空，如"2h"，返回时单位为ns）
   "type":           类型（可空，'Homework'/'Coding'/'Report'/'Discussion'）
 }
 ```

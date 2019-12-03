@@ -3,15 +3,17 @@ package model
 import (
 	"errors"
 	"shuTodo/infrastructure"
+	"strconv"
+	"strings"
 	"time"
 )
 
 type Todo struct {
-	Id           int64         `json:"id"`
-	Content      string        `json:"content"`
-	Due          time.Time     `json:"due"`
-	EstimateCost time.Duration `json:"estimate_cost"`
-	Type         string        `json:"type"`
+	Id           int64          `json:"id"`
+	Content      string         `json:"content"`
+	Due          *time.Time     `json:"due,omitempty"`
+	EstimateCost *time.Duration `json:"estimate_cost,omitempty"`
+	Type         *string        `json:"type,omitempty"`
 }
 
 func GetTodo(id int64) (Todo, error) {
@@ -23,7 +25,15 @@ func GetTodo(id int64) (Todo, error) {
 	object := Todo{
 		Id: id,
 	}
-	err := row.Scan(&object.Content, &object.Due, &object.EstimateCost, &object.Type)
+	var estimateCost *string
+	err := row.Scan(&object.Content, &object.Due, &estimateCost, &object.Type)
+	if estimateCost != nil {
+		hourMinuteSecond := strings.Split(*estimateCost, ":")
+		hour, _ := strconv.Atoi(hourMinuteSecond[0])
+		minute, _ := strconv.Atoi(hourMinuteSecond[1])
+		cost := time.Duration(hour)*time.Hour + time.Duration(minute)*time.Minute
+		object.EstimateCost = &cost
+	}
 	return object, err
 }
 
@@ -39,7 +49,15 @@ func GetTodoByStudentId(studentId string) ([]Todo, error) {
 	var result []Todo
 	for rows.Next() {
 		var item Todo
-		err = rows.Scan(&item.Id, &item.Content, &item.Due, &item.EstimateCost, &item.Type)
+		var estimateCost *string
+		err = rows.Scan(&item.Id, &item.Content, &item.Due, &estimateCost, &item.Type)
+		if estimateCost != nil {
+			hourMinuteSecond := strings.Split(*estimateCost, ":")
+			hour, _ := strconv.Atoi(hourMinuteSecond[0])
+			minute, _ := strconv.Atoi(hourMinuteSecond[1])
+			cost := time.Duration(hour)*time.Hour + time.Duration(minute)*time.Minute
+			item.EstimateCost = &cost
+		}
 		if err != nil {
 			return result, err
 		}
@@ -54,7 +72,7 @@ func SaveTodo(object Todo) (Todo, error) {
 		INSERT INTO Todo(content, due, estimatecost, type)
 		VALUES ($1, $2, $3, $4)
 		returning id;
-		`, object.Content, object.Due, object.EstimateCost, object.Type)
+		`, object.Content, object.Due, object.EstimateCost.String(), object.Type)
 		err := row.Scan(&object.Id)
 		return object, err
 	} else {
@@ -74,7 +92,7 @@ func AssignTodoToStudent(studentId string, todoId int64) error {
 	_, err := infrastructure.DB.Exec(`
 	INSERT INTO studenttodo(student_id, todo_id)
 	VALUES ($1, $2)
-	ON CONFLICT DO UPDATE set student_id=$1;
+	ON CONFLICT(todo_id) DO UPDATE set student_id=$1;
 	`, studentId, todoId)
 	return err
 }

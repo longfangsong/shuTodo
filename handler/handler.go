@@ -32,9 +32,9 @@ func parseInput(input todoInput) (model.Todo, error) {
 	return model.Todo{
 		Id:           input.Id,
 		Content:      input.Content,
-		Due:          due,
-		EstimateCost: estimateCost,
-		Type:         input.Type,
+		Due:          &due,
+		EstimateCost: &estimateCost,
+		Type:         &input.Type,
 	}, nil
 }
 
