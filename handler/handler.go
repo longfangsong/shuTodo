@@ -22,7 +22,8 @@ func parseInput(input todoInput) (model.Todo, error) {
 	if err != nil {
 		return model.Todo{}, err
 	}
-	due = due.In(time.Local)
+	location, _ := time.LoadLocation("Asia/Shanghai")
+	due = due.In(location)
 	estimateCost, err := time.ParseDuration(input.EstimateCost)
 	if err != nil {
 		return model.Todo{}, err

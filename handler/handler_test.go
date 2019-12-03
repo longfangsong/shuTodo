@@ -18,7 +18,7 @@ func TestCreateTodoHandler(t *testing.T) {
 	infrastructure.DB, dbmock, err = sqlmock.New()
 	tools.CheckErr(err, "cannot create Mock")
 	duration, _ := time.ParseDuration("2h")
-	location, _ := time.LoadLocation("Local")
+	location, _ := time.LoadLocation("Asia/Shanghai")
 	date := time.Date(2019, 12, 1, 10, 43, 47, 0, location)
 	dbmock.ExpectQuery(`INSERT INTO Todo`).
 		WithArgs("test", date, duration, "Homework").
