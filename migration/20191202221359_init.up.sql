@@ -32,11 +32,4 @@ create table StudentTodo
 
 alter table studenttodo
     add constraint studenttodo_todo_id_fk
-        foreign key (todo_id) references todo;
-
-alter table studenttodo
-    drop constraint studenttodo_todo_id_fk;
-
-alter table studenttodo
-    add constraint studenttodo_todo_id_fk
-        foreign key (todo_id) references todo;
+        foreign key (todo_id) references todo on DELETE cascade;
