@@ -2,6 +2,7 @@ package token
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"log"
 	"os"
 )
 
@@ -10,6 +11,7 @@ func StudentIdForToken(tokenString string) string {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 	if err != nil {
+		log.Println(err)
 		return ""
 	}
 	claims := token.Claims.(jwt.MapClaims)

@@ -45,7 +45,7 @@ func CreateTodoHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	studentId := token.StudentIdForToken(tokenInHeader[7:])
+	studentId := token.StudentIdForToken(tokenInHeader[len("Bearer "):])
 	if studentId == "" {
 		w.WriteHeader(http.StatusForbidden)
 		return
