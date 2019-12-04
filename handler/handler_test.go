@@ -17,11 +17,10 @@ func TestCreateTodoHandler(t *testing.T) {
 	var err error
 	infrastructure.DB, dbmock, err = sqlmock.New()
 	tools.CheckErr(err, "cannot create Mock")
-	duration, _ := time.ParseDuration("2h")
 	location, _ := time.LoadLocation("Asia/Shanghai")
 	date := time.Date(2019, 12, 1, 10, 43, 47, 0, location)
 	dbmock.ExpectQuery(`INSERT INTO Todo`).
-		WithArgs("test", date, duration, "Homework").
+		WithArgs("test", date, "2h0m0s", "Homework").
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).FromCSVString("1"))
 	dbmock.ExpectExec(`INSERT INTO studenttodo`).
 		WithArgs("17120238", 1).
@@ -58,11 +57,10 @@ func TestGetTodoHandler(t *testing.T) {
 	var err error
 	infrastructure.DB, dbmock, err = sqlmock.New()
 	tools.CheckErr(err, "cannot create mock DB")
-	duration, _ := time.ParseDuration("2h")
 	location, _ := time.LoadLocation("Local")
 	date := time.Date(2019, 12, 1, 0, 0, 0, 0, location)
 	rows := sqlmock.NewRows([]string{"id", "content", "due", "estimatecost", "type"})
-	rows.AddRow(1, "test", date, duration, "Homework")
+	rows.AddRow(1, "test", date, "02:00:00", "Homework")
 	dbmock.ExpectQuery(`SELECT (.+) FROM (.+) where (.+);`).
 		WithArgs("17120238").WillReturnRows(rows)
 	r := httptest.NewRequest("POST", "http://localhost:8000/todo", nil)
