@@ -26,7 +26,11 @@
   
 - `POST /todo`、`PUT /todo`
  
-  新增jwt token指示的学生的todo项
+  新增jwt token指示的学生的todo项。
+  
+  body的内容是Todo项模型（可以去掉id）。
+  
+  返回创建成功的Todo项。
   
 - `DELETE /todo?id=${id}`
   删除id为id的todo项，这个todo项所有者必须是jwt token指示的学生
