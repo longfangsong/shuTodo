@@ -43,7 +43,7 @@ func parseInput(input todoInput) (model.Todo, error) {
 		Content:      input.Content,
 		Due:          duePointer,
 		EstimateCost: estimateCostPointer,
-		Type:         &input.Type,
+		Type:         input.Type,
 	}, nil
 }
 
@@ -92,12 +92,12 @@ func CreateTodoHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(responseBody)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
 }
 
 func GetTodoHandler(w http.ResponseWriter, r *http.Request) {

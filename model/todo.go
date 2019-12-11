@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"errors"
 	"shuTodo/infrastructure"
 	"strconv"
@@ -13,7 +14,7 @@ type Todo struct {
 	Content      string         `json:"content"`
 	Due          *time.Time     `json:"due,omitempty"`
 	EstimateCost *time.Duration `json:"estimate_cost,omitempty"`
-	Type         *string        `json:"type,omitempty"`
+	Type         string         `json:"type,omitempty"`
 }
 
 func GetTodo(id int64) (Todo, error) {
@@ -68,11 +69,25 @@ func GetTodoByStudentId(studentId string) ([]Todo, error) {
 
 func SaveTodo(object Todo) (Todo, error) {
 	if object.Id == 0 {
+		var estimateCost sql.NullString
+		if object.EstimateCost != nil {
+			estimateCost.String = object.EstimateCost.String()
+			estimateCost.Valid = true
+		} else {
+			estimateCost.Valid = false
+		}
+		var dueTime sql.NullTime
+		if object.Due != nil {
+			dueTime.Time = *object.Due
+			dueTime.Valid = true
+		} else {
+			dueTime.Valid = false
+		}
 		row := infrastructure.DB.QueryRow(`
 		INSERT INTO Todo(content, due, estimatecost, type)
 		VALUES ($1, $2, $3, $4)
 		returning id;
-		`, object.Content, object.Due, object.EstimateCost.String(), object.Type)
+		`, object.Content, object.Due, estimateCost, object.Type)
 		err := row.Scan(&object.Id)
 		return object, err
 	} else {
