@@ -19,24 +19,30 @@ type todoInput struct {
 }
 
 func parseInput(input todoInput) (model.Todo, error) {
+	var duePointer *time.Time
 	due, err := time.Parse("2006-01-02T15:04:05.999999999Z", input.Due)
 	if err != nil {
-		return model.Todo{}, err
+		duePointer = nil
+	} else {
+		location, err := time.LoadLocation("Asia/Shanghai")
+		if err != nil {
+			panic(err)
+		}
+		due = due.In(location)
+		duePointer = &due
 	}
-	location, err := time.LoadLocation("Asia/Shanghai")
-	if err != nil {
-		panic(err)
-	}
-	due = due.In(location)
+	var estimateCostPointer *time.Duration
 	estimateCost, err := time.ParseDuration(input.EstimateCost)
 	if err != nil {
-		return model.Todo{}, err
+		estimateCostPointer = nil
+	} else {
+		estimateCostPointer = &estimateCost
 	}
 	return model.Todo{
 		Id:           input.Id,
 		Content:      input.Content,
-		Due:          &due,
-		EstimateCost: &estimateCost,
+		Due:          duePointer,
+		EstimateCost: estimateCostPointer,
 		Type:         &input.Type,
 	}, nil
 }
