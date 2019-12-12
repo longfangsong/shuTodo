@@ -121,7 +121,11 @@ func GetTodoHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	_, err = w.Write(body)
+	if len(todos) == 0 {
+		_, err = w.Write([]byte("[]"))
+	} else {
+		_, err = w.Write(body)
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
