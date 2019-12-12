@@ -91,6 +91,13 @@ func SaveTodo(object Todo) (Todo, error) {
 		err := row.Scan(&object.Id)
 		return object, err
 	} else {
+		var estimateCost sql.NullString
+		if object.EstimateCost != nil {
+			estimateCost.String = object.EstimateCost.String()
+			estimateCost.Valid = true
+		} else {
+			estimateCost.Valid = false
+		}
 		_, err := infrastructure.DB.Exec(`
 		UPDATE Todo
 		SET content=$2,
@@ -98,7 +105,7 @@ func SaveTodo(object Todo) (Todo, error) {
 		    estimatecost=$4,
 		    type=$5
 		WHERE id=$1;
-		`, object.Id, object.Content, object.Due, object.EstimateCost, object.Type)
+		`, object.Id, object.Content, object.Due, estimateCost, object.Type)
 		return object, err
 	}
 }
